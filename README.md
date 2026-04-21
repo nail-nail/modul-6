@@ -18,3 +18,8 @@ This commit completes the HTTP request-response cycle. The previous version rece
 This section focuses on building a complete request-response cycle by reading the first line of the HTTP request to identify what the client wants, then responding with either the correct HTML page or a 404 error. 
 
 Refactoring becomes necessary because both the success and error branches do the exact same work (read a file, format a response, write it to the stream) with only two values differing which are the status line and the filename. Duplicating that logic means any future change must be made in two places, risking inconsistency. By extracting just the differing values into a tuple from the if/else and sharing the rest of the code, there is now one place to update if the response format ever changes.
+
+## Reflection 4
+Adding the `/sleep` route makes the single-threaded design fail in a visible way. When one browser requests `127.0.0.1:7878/sleep`, `handle_connection` calls `thread::sleep(Duration::from_secs(10))` and blocks the only thread handling all work. During those 10 seconds, the server cannot move on to the next connection in `listener.incoming()`, so a second browser requesting `127.0.0.1:7878` has to wait even though that route itself is fast.
+
+The bottleneck is not file reading or HTTP parsing rather the fact that the entire server processes requests sequentially on one thread. Each request must fully It does not scale because one slow request delays unrelated users. The server needs a way to handle multiple connections independently so slow work on one request does not block all others which is concurrency.
