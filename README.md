@@ -14,3 +14,7 @@ When a browser connects to our server, the `handle_connection` read what it send
 This commit completes the HTTP request-response cycle. The previous version received and parsed the request but never wrote anything back, leaving the browser hanging. I learned that receiving a connection and sending a response are two separate, explicit steps: read the request and write response. The server must actively write the response back down the socket, otherwise the client gets nothing.
 
 ## Reflection 3
+![Commit 3 screen capture](/assets/img/refl3.png)
+This section focuses on building a complete request-response cycle by reading the first line of the HTTP request to identify what the client wants, then responding with either the correct HTML page or a 404 error. 
+
+Refactoring becomes necessary because both the success and error branches do the exact same work (read a file, format a response, write it to the stream) with only two values differing which are the status line and the filename. Duplicating that logic means any future change must be made in two places, risking inconsistency. By extracting just the differing values into a tuple from the if/else and sharing the rest of the code, there is now one place to update if the response format ever changes.
