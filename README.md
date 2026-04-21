@@ -8,3 +8,9 @@ When a browser connects to our server, the `handle_connection` read what it send
 * **Handling the Results (or Ignoring the Errors):** The `.lines()` method doesn't just hand us raw text; it hands us an iterator of `Result` types, just in case the text is garbled (invalid UTF-8) or the connection drops. To keep our code simple right now, the function uses `.map` and `.unwrap()` to force out the clean `String`. If something goes wrong, the program will just crash. (In a production app, you'd want to handle this gracefully, but for a simple server, it does the trick!)
 * **Knowing When to Stop:** How do the function knows when the browser is finished sending its request? By rule, HTTP requests always end with a completely blank line. So, the function tells our code to keep pulling lines until it hits an empty string, and then stop.
 * **Taking a Look:** Once the function's collected all those lines into our Vector, the function prints the whole thing out using Rust's pretty debug formatting. This gives us a nice, readable look at the exact instructions the browser just sent to our server. 
+
+## Reflection 2
+![Commit 2 screen capture](/assets/img/refl2.png)
+This commit completes the HTTP request-response cycle. The previous version received and parsed the request but never wrote anything back, leaving the browser hanging. I learned that receiving a connection and sending a response are two separate, explicit steps: read the request and write response. The server must actively write the response back down the socket, otherwise the client gets nothing.
+
+## Reflection 3
